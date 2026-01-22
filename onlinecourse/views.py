@@ -146,20 +146,32 @@ def show_exam_result(request, course_id, submission_id):
     choices = submission.choices.all()
 
     total_score = 0
-    questions = course.question_set.all()  # Assuming course has related questions
-
+    max_score = 0 # We need to track the maximum possible score
+    questions = course.question_set.all()
+    
     for question in questions:
-        correct_choices = question.choice_set.filter(is_correct=True)  # Get all correct choices for the question
-        selected_choices = choices.filter(question=question)  # Get the user's selected choices for the question
+        # 1. Calculate Max Score
+        max_score += question.grade
+        
+        # 2. Calculate User Score
+        correct_choices = question.choice_set.filter(is_correct=True)
+        selected_choices = choices.filter(question=question)
 
-        # Check if the selected choices are the same as the correct choices
+        # Check if the selected choices match the correct choices exactly
         if set(correct_choices) == set(selected_choices):
-            total_score += question.grade  # Add the question's grade only if all correct answers are selected
+            total_score += question.grade
 
+    # 3. Determine Pass/Fail (Pass if score >= 80% or whatever threshold you prefer)
+    if max_score > 0:
+        # Example: Pass if 50% or higher
+        is_passed = (total_score / max_score) * 100 >= 50
+    else:
+        is_passed = False
+
+    # 4. Update Context
     context['course'] = course
     context['grade'] = total_score
+    context['is_passed'] = is_passed  # <--- THIS WAS MISSING
     context['choices'] = choices
 
     return render(request, 'onlinecourse/exam_result_bootstrap.html', context)
-
-
