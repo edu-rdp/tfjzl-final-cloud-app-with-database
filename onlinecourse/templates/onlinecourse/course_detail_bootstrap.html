@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-     {% load static %}
+    {% load static %}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
@@ -10,7 +10,6 @@
 </head>
 
 <body>
-    <!-- Navigation bar -->
     <nav class="navbar navbar-light bg-light">
         <div class="container-fluid">
             <div class="navbar-header">
@@ -39,7 +38,6 @@
         </div>
     </nav>
 
-    <!-- Page content -->
     <div class="container-fluid">
             <h2>{{ course.name }}</h2>
             <div class="card-columns-vertical">
@@ -48,45 +46,49 @@
                         <div class="card-header"><h5>Lesson {{lesson.order|add:1}}: {{lesson.title}}</h5></div>
                         <div class="card-body">{{lesson.content}}</div>
                     </div>
-                    <br>
-                    {% if user.is_authenticated %}
-                        {% if course.question_set.count > 0 %}
-                        <div class="card mt-1">
-                            <div class="card-header">
-                                <h5>Course Exam</h5>
-                            </div>
-                            <div class="card-body">
-                                <form action="{% url 'onlinecourse:submit' course.id %}" method="post">
-                                    {% csrf_token %}
-                                    
-                                    {% for question in course.question_set.all %}
-                                    <div class="card mt-2">
-                                        <div class="card-header">
-                                            <h5>{{ question.content }}</h5>
-                                        </div>
-                                        <div class="card-body">
-                                            {% for choice in question.choice_set.all %}
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="choice_{{choice.id}}" id="{{choice.id}}" value="{{choice.id}}">
-                                                <label class="form-check-label" for="{{choice.id}}">
-                                                    {{ choice.content }}
-                                                </label>
-                                            </div>
-                                            {% endfor %}
-                                        </div>
+                {% endfor %} 
+            </div>
+            <br>
+            {% if user.is_authenticated %}
+            <button class="btn btn-primary btn-block" type="button" data-toggle="collapse" data-target="#exam" aria-expanded="false" aria-controls="exam">
+                Start Exam
+            </button>
+
+            <div class="collapse" id="exam">
+                <div class="card mt-1">
+                    <div class="card-header">
+                        <h5>Course Exam</h5>
+                    </div>
+                    <div class="card-body">
+                        <form action="{% url 'onlinecourse:submit' course.id %}" method="post">
+                            {% csrf_token %}
+                            
+                            {% for question in course.question_set.all %}
+                            <div class="card mt-2">
+                                <div class="card-header">
+                                    <h5>{{ question.content }}</h5>
+                                </div>
+                                <div class="card-body">
+                                    {% for choice in question.choice_set.all %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="choice_{{choice.id}}" id="{{choice.id}}" value="{{choice.id}}">
+                                        <label class="form-check-label" for="{{choice.id}}">
+                                            {{ choice.content }}
+                                        </label>
                                     </div>
                                     {% endfor %}
-                                    
-                                    <br>
-                                    <input class="btn btn-primary btn-block" type="submit" value="Submit Exam">
-                                </form>
+                                </div>
                             </div>
-                        </div>
-                        {% else %}
-                            <p>No exam questions available for this course yet.</p>
-                     {% endif %}
-                 {% endif %}
-                    
-         </div>
+                            {% endfor %}
+                            
+                            <br>
+                            <input class="btn btn-success btn-block" type="submit" value="Submit">
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+    </div>
 </body>
 </html>
